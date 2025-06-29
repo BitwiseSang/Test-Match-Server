@@ -1,0 +1,117 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  password  String
+  role      Role     @default(TESTER)
+  name      String
+  location  String?
+  avatar    Bytes?
+  devices   Device[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  invitations Invitation[]
+}
+
+model Client {
+  id          String   @id @default(uuid())
+  email       String   @unique
+  password    String
+  companyName String
+  contactName String
+  location    String?
+  avatar      Bytes?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  testCycles TestCycle[]
+}
+
+model Device {
+  id          String   @id @default(uuid())
+  userId      String
+  type        DeviceType
+  os          OperatingSystem
+  osVersion   String
+  brand       String
+  model       String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, os, brand, model, osVersion]) // Prevent duplicate devices
+}
+
+model TestCycle {
+  id           String     @id @default(uuid())
+  clientId     String
+  title        String
+  description  String
+  requiredOS   String[]   // List of required OSs
+  requiredLocation String[]
+  requiredDevices String[]
+  slots        Int
+  status       TestStatus @default(OPEN)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  client     Client     @relation(fields: [clientId], references: [id])
+  invitations Invitation[]
+}
+
+model Invitation {
+  id         String     @id @default(uuid())
+  testCycleId String
+  testerId   String
+  status     InviteStatus @default(PENDING)
+  sentAt     DateTime     @default(now())
+  respondedAt DateTime?
+
+  tester     User      @relation(fields: [testerId], references: [id])
+  testCycle  TestCycle @relation(fields: [testCycleId], references: [id])
+
+  @@unique([testCycleId, testerId])
+}
+
+enum Role {
+  TESTER
+  ADMIN
+}
+
+enum InviteStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+}
+
+enum TestStatus {
+  OPEN
+  CLOSED
+}
+
+enum DeviceType {
+  MOBILE
+  TABLET
+  DESKTOP
+  LAPTOP
+}
+
+enum OperatingSystem {
+  IOS
+  ANDROID
+  WINDOWS
+  MACOS
+  LINUX
+}
