@@ -1,6 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import { PrismaClient } from '@prisma/client';
+import authRoutes from './routes/auth.routes';
 
 dotenv.config();
 
@@ -8,6 +9,9 @@ const app = express();
 const prisma = new PrismaClient();
 
 app.use(express.json());
+
+// ROUTES
+app.use('/api/auth', authRoutes);
 
 app.get('/', async (req, res) => {
   const testers = await prisma.user.findMany();
