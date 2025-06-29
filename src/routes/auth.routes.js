@@ -21,5 +21,17 @@ router.post('/client/register', upload.single('avatar'), registerClient);
 router.post('/client/login', loginClient);
 
 // UPDATE PROFILE ROUTES
+router.patch(
+  '/tester/profile',
+  authenticate('TESTER'),
+  upload.single('avatar'),
+  updateTesterProfile
+);
+router.patch(
+  '/client/profile',
+  authenticate('CLIENT'),
+  upload.single('avatar'),
+  updateClientProfile
+);
 
 export default router;

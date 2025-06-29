@@ -4,7 +4,9 @@ import { generateToken } from '../utils/jwt.js';
 
 const prisma = new PrismaClient();
 
-export async function registerTester(data) {
+// AUTH SERVICES
+
+async function registerTester(data) {
   const existing = await prisma.user.findUnique({
     where: { email: data.email },
   });
@@ -25,7 +27,7 @@ export async function registerTester(data) {
   return generateToken({ id: user.id, role: user.role });
 }
 
-export async function loginTester(email, password) {
+async function loginTester(email, password) {
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) throw new Error('Invalid credentials');
 
@@ -35,7 +37,7 @@ export async function loginTester(email, password) {
   return generateToken({ id: user.id, role: user.role });
 }
 
-export async function registerClient(data) {
+async function registerClient(data) {
   const existing = await prisma.client.findUnique({
     where: { email: data.email },
   });
@@ -56,7 +58,7 @@ export async function registerClient(data) {
   return generateToken({ id: client.id, role: 'CLIENT' });
 }
 
-export async function loginClient(email, password) {
+async function loginClient(email, password) {
   const client = await prisma.client.findUnique({ where: { email } });
   if (!client) throw new Error('Invalid credentials');
 
@@ -65,3 +67,35 @@ export async function loginClient(email, password) {
 
   return generateToken({ id: client.id, role: 'CLIENT' });
 }
+
+// PROFILE UPDATE SERVICES
+
+export async function updateTesterProfile(userId, data) {
+  return await prisma.user.update({
+    where: { id: userId },
+    data: {
+      name: data.name,
+      location: data.location,
+      avatar: data.avatar,
+    },
+  });
+}
+
+export async function updateClientProfile(clientId, data) {
+  return await prisma.client.update({
+    where: { id: clientId },
+    data: {
+      companyName: data.companyName,
+      contactName: data.contactName,
+      location: data.location,
+      avatar: data.avatar,
+    },
+  });
+}
+
+export default {
+  loginTester,
+  registerTester,
+  registerClient,
+  loginClient,
+};
