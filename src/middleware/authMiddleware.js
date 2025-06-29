@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { env } from '../config/env.js';
 
-export function authenticate(requiredRole) {
+function authenticate(requiredRole) {
   return (req, res, next) => {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -24,3 +24,5 @@ export function authenticate(requiredRole) {
     }
   };
 }
+
+export default authenticate;
