@@ -1,16 +1,10 @@
 import { PrismaClient, Role } from '@prisma/client';
 import bcrypt from 'bcrypt';
-import { generateToken } from '../utils/jwt';
+import { generateToken } from '../utils/jwt.js';
 
 const prisma = new PrismaClient();
 
-export async function registerTester(data: {
-  email: string;
-  password: string;
-  name: string;
-  location?: string;
-  avatar?: Buffer;
-}) {
+export async function registerTester(data) {
   const existing = await prisma.user.findUnique({
     where: { email: data.email },
   });
@@ -31,7 +25,7 @@ export async function registerTester(data: {
   return generateToken({ id: user.id, role: user.role });
 }
 
-export async function loginTester(email: string, password: string) {
+export async function loginTester(email, password) {
   const user = await prisma.user.findUnique({ where: { email } });
   if (!user) throw new Error('Invalid credentials');
 
@@ -41,14 +35,7 @@ export async function loginTester(email: string, password: string) {
   return generateToken({ id: user.id, role: user.role });
 }
 
-export async function registerClient(data: {
-  email: string;
-  password: string;
-  companyName: string;
-  contactName: string;
-  location?: string;
-  avatar?: Buffer;
-}) {
+export async function registerClient(data) {
   const existing = await prisma.client.findUnique({
     where: { email: data.email },
   });
@@ -69,7 +56,7 @@ export async function registerClient(data: {
   return generateToken({ id: client.id, role: 'CLIENT' });
 }
 
-export async function loginClient(email: string, password: string) {
+export async function loginClient(email, password) {
   const client = await prisma.client.findUnique({ where: { email } });
   if (!client) throw new Error('Invalid credentials');
 

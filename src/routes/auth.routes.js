@@ -4,8 +4,11 @@ import {
   loginTester,
   registerClient,
   loginClient,
-} from '../controllers/auth.controller';
-import { upload } from '../middleware/upload';
+  updateTesterProfile,
+  updateClientProfile,
+} from '../controllers/auth.controller.js';
+import { upload } from '../middleware/upload.js';
+import { authenticate } from '../middleware/authMiddleware.js';
 
 const router = Router();
 
@@ -16,5 +19,7 @@ router.post('/tester/login', loginTester);
 // CLIENT ROUTES
 router.post('/client/register', upload.single('avatar'), registerClient);
 router.post('/client/login', loginClient);
+
+// UPDATE PROFILE ROUTES
 
 export default router;
