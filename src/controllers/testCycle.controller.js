@@ -8,3 +8,16 @@ export async function createTestCycle(req, res) {
     res.status(400).json({ error: err.message });
   }
 }
+
+export async function updateTestCycle(req, res) {
+  try {
+    const updated = await TestCycleService.updateTestCycle(
+      req.user,
+      req.params.id,
+      req.body
+    );
+    res.json({ message: 'Test cycle updated', updated });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+}
