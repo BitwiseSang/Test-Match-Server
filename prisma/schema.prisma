@@ -67,6 +67,9 @@ model TestCycle {
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
 
+  startDate       DateTime
+  endDate         DateTime
+
   client     Client     @relation(fields: [clientId], references: [id])
   invitations Invitation[]
 }
@@ -99,6 +102,8 @@ enum InviteStatus {
 enum TestStatus {
   OPEN
   CLOSED
+  COMPLETED
+  CANCELLED
 }
 
 enum DeviceType {
