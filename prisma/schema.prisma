@@ -97,6 +97,7 @@ enum InviteStatus {
   PENDING
   ACCEPTED
   DECLINED
+  EXPIRED
 }
 
 enum TestStatus {
