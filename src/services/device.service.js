@@ -55,3 +55,41 @@ export async function getUserDevices(userId) {
     orderBy: { createdAt: 'desc' }, // optional, if createdAt exists
   });
 }
+
+export async function deleteDevices(userId, deviceId) {
+  const device = await prisma.device.findUnique({
+    where: { id: deviceId },
+  });
+
+  // Checking if device exists.
+  if (!device || device.userId !== userId) {
+    throw new Error('Device not found or unauthorized');
+  }
+
+  // Deleting device, only if it exists.
+  await prisma.device.delete({
+    where: { id: deviceId },
+  });
+
+  return { message: 'Device deleted' };
+}
+
+// ADMIN//
+
+// Get all devices
+
+export async function getAllDevicesForAdmin() {
+  return await prisma.device.findMany({
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+        },
+      },
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+}

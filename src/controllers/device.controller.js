@@ -30,3 +30,24 @@ export async function getUserDevices(req, res) {
     res.status(400).json({ error: err.message });
   }
 }
+
+export async function deleteDevices(req, res) {
+  try {
+    const result = await DeviceService.deleteDevices(
+      req.user.id,
+      req.params.id
+    );
+    res.json(result);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+}
+
+export async function getAllDevicesForAdmin(_req, res) {
+  try {
+    const devices = await DeviceService.getAllDevicesForAdmin();
+    res.json({ devices });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+}
