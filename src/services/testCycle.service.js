@@ -44,3 +44,13 @@ export async function updateTestCycle(user, cycleId, updates) {
     },
   });
 }
+
+export async function getTestCyclesForUser(user) {
+  const whereClause =
+    user.role === 'CLIENT' ? { clientId: user.id } : undefined; // ADMIN fetches all
+
+  return await prisma.testCycle.findMany({
+    where: whereClause,
+    orderBy: { createdAt: 'desc' },
+  });
+}

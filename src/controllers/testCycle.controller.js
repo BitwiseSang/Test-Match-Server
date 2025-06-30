@@ -21,3 +21,12 @@ export async function updateTestCycle(req, res) {
     res.status(400).json({ error: err.message });
   }
 }
+
+export async function getTestCycles(req, res) {
+  try {
+    const cycles = await TestCycleService.getTestCyclesForUser(req.user);
+    res.json({ cycles });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+}
