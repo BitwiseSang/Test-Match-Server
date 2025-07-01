@@ -21,11 +21,6 @@ app.use('/api/test-cycles', testCycleRoutes);
 app.use('/api/invitations', invitationRoutes);
 app.use('/api/admin', adminRoutes);
 
-app.get('/', async (req, res) => {
-  const testers = await prisma.user.findMany();
-  res.json(testers);
-});
-
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
