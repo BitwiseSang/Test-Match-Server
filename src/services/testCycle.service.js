@@ -125,3 +125,57 @@ export async function getClientTestCycleById(clientId, cycleId) {
     })),
   };
 }
+
+export async function getTestCycleByIdForAdmin(cycleId) {
+  const cycle = await prisma.testCycle.findUnique({
+    where: { id: cycleId },
+    include: {
+      client: {
+        select: { id: true, companyName: true, email: true },
+      },
+      invitations: {
+        include: {
+          tester: {
+            select: { id: true, email: true },
+          },
+        },
+      },
+    },
+  });
+
+  if (!cycle) throw new Error('Test cycle not found');
+
+  const stats = { accepted: 0, declined: 0, pending: 0 };
+  for (const invite of cycle.invitations) {
+    stats[invite.status.toLowerCase()]++;
+  }
+
+  const isExpired = new Date(cycle.endDate) < new Date();
+  const cycleStatus = isExpired
+    ? 'EXPIRED'
+    : stats.accepted >= cycle.slots
+    ? 'FILLED'
+    : 'OPEN';
+
+  return {
+    id: cycle.id,
+    title: cycle.title,
+    description: cycle.description,
+    requiredLocation: cycle.requiredLocation,
+    requiredOS: cycle.requiredOS,
+    requiredDevices: cycle.requiredDevices,
+    slots: cycle.slots,
+    startDate: cycle.startDate,
+    endDate: cycle.endDate,
+    status: cycleStatus,
+    stats,
+    client: cycle.client,
+    invitations: cycle.invitations.map((inv) => ({
+      id: inv.id,
+      status: inv.status,
+      sentAt: inv.sentAt,
+      respondedAt: inv.respondedAt,
+      tester: inv.tester,
+    })),
+  };
+}
