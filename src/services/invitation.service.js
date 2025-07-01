@@ -63,3 +63,38 @@ export async function getMyInvitations(testerId) {
 
   return invites;
 }
+
+export async function getInvitationsForCycleSummary(testCycleId) {
+  const invitations = await prisma.invitation.findMany({
+    where: { testCycleId },
+    include: {
+      tester: {
+        select: {
+          email: true,
+        },
+      },
+    },
+    orderBy: { sentAt: 'desc' },
+  });
+
+  const summary = {
+    total: invitations.length,
+    accepted: 0,
+    declined: 0,
+    pending: 0,
+  };
+
+  const formatted = invitations.map((invite) => {
+    summary[invite.status.toLowerCase()]++;
+
+    return {
+      id: invite.id,
+      email: invite.tester.email,
+      status: invite.status,
+      sentAt: invite.sentAt,
+      respondedAt: invite.respondedAt,
+    };
+  });
+
+  return { summary, invitations: formatted };
+}

@@ -28,3 +28,19 @@ export async function getMyInvites(req, res) {
     res.status(400).json({ error: err.message });
   }
 }
+
+export async function getInvitesForCycle(req, res) {
+  try {
+    if (req.user.role !== 'ADMIN') {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    const result = await InvitationService.getInvitationsForCycleSummary(
+      req.params.id
+    );
+
+    res.json(result);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+}
