@@ -1,0 +1,21 @@
+import * as InvitationService from '../services/invitation.service.js';
+
+export async function respondToInvite(req, res) {
+  try {
+    const { status } = req.body;
+    const valid = ['ACCEPTED', 'DECLINED'];
+    if (!valid.includes(status)) {
+      return res.status(400).json({ error: 'Invalid status' });
+    }
+
+    const result = await InvitationService.respondToInvitation(
+      req.user.id,
+      req.params.id,
+      status
+    );
+
+    res.json({ message: 'Invitation response saved', result });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+}

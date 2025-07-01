@@ -4,6 +4,7 @@ import { PrismaClient } from '@prisma/client';
 import authRoutes from './routes/auth.routes.js';
 import deviceRoutes from './routes/device.routes.js';
 import testCycleRoutes from './routes/testCycle.routes.js';
+import invitationRoutes from './routes/invitation.routes.js';
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/', deviceRoutes);
 app.use('/api/test-cycles', testCycleRoutes);
+app.use('/api/invitations', invitationRoutes);
 
 app.get('/', async (req, res) => {
   const testers = await prisma.user.findMany();
