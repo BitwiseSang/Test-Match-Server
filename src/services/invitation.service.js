@@ -1,11 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
-export async function respondToInvitation(
-  testerId,
-  invitationId,
-  responseStatus
-) {
+export async function respondToInvitation(testerId, invitationId, newStatus) {
   const invitation = await prisma.invitation.findUnique({
     where: { id: invitationId },
     include: { testCycle: true },
@@ -13,26 +9,34 @@ export async function respondToInvitation(
 
   if (!invitation) throw new Error('Invitation not found');
   if (invitation.testerId !== testerId) throw new Error('Not your invitation');
-  if (invitation.status !== 'PENDING') throw new Error('Already responded');
+  if (invitation.status === newStatus)
+    throw new Error(`Already ${newStatus.toLowerCase()}`);
 
-  if (responseStatus === 'ACCEPTED') {
-    // Count already accepted testers for this test cycle
-    const acceptedCount = await prisma.invitation.count({
-      where: {
-        testCycleId: invitation.testCycleId,
-        status: 'ACCEPTED',
-      },
-    });
+  const testCycleId = invitation.testCycleId;
 
-    if (acceptedCount >= invitation.testCycle.slots) {
-      throw new Error('Test cycle is already full');
+  // Check current accepted count
+  const acceptedCount = await prisma.invitation.count({
+    where: {
+      testCycleId,
+      status: 'ACCEPTED',
+    },
+  });
+
+  const maxSlots = invitation.testCycle.slots;
+
+  // If accepting now, and cycle is full, reject
+  if (newStatus === 'ACCEPTED') {
+    if (acceptedCount >= maxSlots) {
+      throw new Error('No available slots');
     }
   }
+
+  // If declining a previously accepted invite, we still update (slots freed automatically via count logic)
 
   const updated = await prisma.invitation.update({
     where: { id: invitationId },
     data: {
-      status: responseStatus,
+      status: newStatus,
       respondedAt: new Date(),
     },
   });
