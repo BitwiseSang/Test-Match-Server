@@ -8,8 +8,8 @@ import authenticate from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
-router.post('/test-cycles', authenticate('CLIENT'), createTestCycle);
-router.patch('/test-cycles/:id', authenticate(), updateTestCycle);
-router.get('/test-cycles', authenticate(), getTestCycles);
+router.post('/', authenticate('CLIENT'), createTestCycle);
+router.patch('/:id', authenticate(), updateTestCycle);
+router.get('/', authenticate(), getTestCycles);
 
 export default router;

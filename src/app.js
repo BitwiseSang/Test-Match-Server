@@ -15,7 +15,7 @@ app.use(express.json());
 // ROUTES
 app.use('/api/auth', authRoutes);
 app.use('/api/', deviceRoutes);
-app.use('/api/', testCycleRoutes);
+app.use('/api/test-cycles', testCycleRoutes);
 
 app.get('/', async (req, res) => {
   const testers = await prisma.user.findMany();
