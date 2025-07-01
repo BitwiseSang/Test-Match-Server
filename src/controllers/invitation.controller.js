@@ -19,3 +19,12 @@ export async function respondToInvite(req, res) {
     res.status(400).json({ error: err.message });
   }
 }
+
+export async function getMyInvites(req, res) {
+  try {
+    const invites = await InvitationService.getMyInvitations(req.user.id);
+    res.json(invites);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+}

@@ -39,3 +39,27 @@ export async function respondToInvitation(
 
   return updated;
 }
+
+export async function getMyInvitations(testerId) {
+  const invites = await prisma.invitation.findMany({
+    where: {
+      testerId,
+    },
+    include: {
+      testCycle: {
+        select: {
+          id: true,
+          title: true,
+          startDate: true,
+          endDate: true,
+          status: true,
+        },
+      },
+    },
+    orderBy: {
+      sentAt: 'desc',
+    },
+  });
+
+  return invites;
+}
