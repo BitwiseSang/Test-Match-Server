@@ -1,8 +1,10 @@
 import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
+import { matchEligibleTesters } from './match.service.js';
+
 export async function createTestCycle(clientId, data) {
-  return await prisma.testCycle.create({
+  const newCycle = await prisma.testCycle.create({
     data: {
       clientId,
       title: data.title,
@@ -15,6 +17,9 @@ export async function createTestCycle(clientId, data) {
       endDate: new Date(data.endDate),
     },
   });
+  await matchEligibleTesters(newCycle.id);
+
+  return newCycle;
 }
 
 export async function updateTestCycle(user, cycleId, updates) {
