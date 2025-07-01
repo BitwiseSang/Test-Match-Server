@@ -179,3 +179,43 @@ export async function getTestCycleByIdForAdmin(cycleId) {
     })),
   };
 }
+
+export async function getAllTestCyclesForAdmin() {
+  const cycles = await prisma.testCycle.findMany({
+    orderBy: { createdAt: 'desc' },
+    include: {
+      client: {
+        select: { id: true, companyName: true, email: true },
+      },
+      invitations: {
+        select: { status: true },
+      },
+    },
+  });
+
+  return cycles.map((cycle) => {
+    const stats = { accepted: 0, declined: 0, pending: 0 };
+
+    for (const invite of cycle.invitations) {
+      stats[invite.status.toLowerCase()]++;
+    }
+
+    const isExpired = new Date(cycle.endDate) < new Date();
+    const status = isExpired
+      ? 'EXPIRED'
+      : stats.accepted >= cycle.slots
+      ? 'FILLED'
+      : 'OPEN';
+
+    return {
+      id: cycle.id,
+      title: cycle.title,
+      startDate: cycle.startDate,
+      endDate: cycle.endDate,
+      slots: cycle.slots,
+      status,
+      stats,
+      client: cycle.client,
+    };
+  });
+}

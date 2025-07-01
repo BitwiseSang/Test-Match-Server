@@ -60,3 +60,16 @@ export async function getAdminCycleById(req, res) {
     res.status(400).json({ error: err.message });
   }
 }
+
+export async function getAllCyclesForAdmin(req, res) {
+  try {
+    if (req.user.role !== 'ADMIN') {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    const result = await TestCycleService.getAllTestCyclesForAdmin();
+    res.json(result);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+}
