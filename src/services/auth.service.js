@@ -18,7 +18,7 @@ export async function registerTester(data) {
       email: data.email,
       password: hashed,
       name: data.name,
-      location: data.location,
+      location: data.location.toLowerCase(),
       role: Role.TESTER,
       avatar: data.avatar,
     },
@@ -50,7 +50,7 @@ export async function registerClient(data) {
       password: hashed,
       companyName: data.companyName,
       contactName: data.contactName,
-      location: data.location,
+      location: data.location.toLowerCase(),
       avatar: data.avatar,
     },
   });
@@ -75,7 +75,7 @@ export async function updateTesterProfile(userId, data) {
     where: { id: userId },
     data: {
       name: data.name,
-      location: data.location,
+      location: data.location.toLowerCase(),
       avatar: data.avatar,
     },
   });
@@ -87,7 +87,7 @@ export async function updateClientProfile(clientId, data) {
     data: {
       companyName: data.companyName,
       contactName: data.contactName,
-      location: data.location,
+      location: data.location.toLowerCase(),
       avatar: data.avatar,
     },
   });
