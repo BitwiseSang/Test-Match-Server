@@ -22,32 +22,46 @@ export async function createTestCycle(clientId, data) {
   return newCycle;
 }
 
-export async function updateTestCycle(user, cycleId, updates) {
-  const cycle = await prisma.testCycle.findUnique({ where: { id: cycleId } });
+export async function updateTestCycle(user, id, updates) {
+  // Fetch the cycle
+  const cycle = await prisma.testCycle.findUnique({
+    where: { id },
+  });
 
   if (!cycle) throw new Error('Test cycle not found');
 
-  // only the client who owns it or an admin can update
+  // Only client owner or admin can edit
   if (user.role !== 'ADMIN' && user.id !== cycle.clientId) {
-    throw new Error('Not authorized to update this cycle');
+    throw new Error('Not authorized to edit this test cycle');
   }
 
-  return await prisma.testCycle.update({
-    where: { id: cycleId },
-    data: {
-      title: updates.title,
-      description: updates.description,
-      requiredOS: updates.requiredOS?.map((os) => os.toLowerCase()),
-      requiredDevices: updates.requiredDevices?.map((d) => d.toLowerCase()),
-      requiredLocation: updates.requiredLocation?.map((loc) =>
-        loc.toLowerCase()
-      ),
-      slots: updates.slots,
-      startDate: updates.startDate ? new Date(updates.startDate) : undefined,
-      endDate: updates.endDate ? new Date(updates.endDate) : undefined,
-      status: user.role === 'ADMIN' ? updates.status : undefined,
-    },
+  // Prevent editing if already ended
+  if (new Date(cycle.endDate) < new Date()) {
+    throw new Error('Cannot edit a test cycle that has ended');
+  }
+
+  // Optional: filter only editable fields
+  const editable = [
+    'title',
+    'description',
+    'requiredLocation',
+    'requiredOS',
+    'requiredDevices',
+    'slots',
+    'startDate',
+    'endDate',
+  ];
+  const data = {};
+  for (const key of editable) {
+    if (updates[key] !== undefined) data[key] = updates[key];
+  }
+
+  const updated = await prisma.testCycle.update({
+    where: { id },
+    data,
   });
+
+  return updated;
 }
 
 export async function getTestCyclesForUser(user) {
