@@ -30,3 +30,20 @@ export async function getTestCycles(req, res) {
     res.status(400).json({ error: err.message });
   }
 }
+
+export async function getClientCycleById(req, res) {
+  try {
+    if (req.user.role !== 'CLIENT') {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    const data = await TestCycleService.getClientTestCycleById(
+      req.user.id,
+      req.params.id
+    );
+
+    res.json(data);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+}
