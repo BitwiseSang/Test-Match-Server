@@ -8,6 +8,7 @@ import {
   getAllCyclesForAdmin,
 } from '../controllers/testCycle.controller.js';
 import authenticate from '../middleware/authMiddleware.js';
+import { triggerCleanup } from '../controllers/admin.controller.js';
 
 // Admin Routes
 router.get(
@@ -22,6 +23,12 @@ router.get(
   authenticate(),
   adminMiddleware,
   getAllCyclesForAdmin
+);
+router.post(
+  '/cleanup/expired-cycles',
+  authenticate(),
+  adminMiddleware,
+  triggerCleanup
 );
 
 export default router;

@@ -219,3 +219,62 @@ export async function getAllTestCyclesForAdmin() {
     };
   });
 }
+
+export async function cleanupExpiredTestCycles() {
+  const now = new Date();
+
+  const cycles = await prisma.testCycle.findMany({
+    where: {
+      OR: [
+        { endDate: { lt: now } },
+        { status: 'OPEN' }, // in case slots filled recently
+      ],
+    },
+    include: {
+      invitations: {
+        where: { status: 'PENDING' },
+      },
+    },
+  });
+
+  const updates = [];
+
+  for (const cycle of cycles) {
+    const acceptedCount = await prisma.invitation.count({
+      where: {
+        testCycleId: cycle.id,
+        status: 'ACCEPTED',
+      },
+    });
+
+    const shouldExpire =
+      new Date(cycle.endDate) < now || acceptedCount >= cycle.slots;
+
+    if (shouldExpire && cycle.status !== 'EXPIRED') {
+      // Update cycle status
+      await prisma.testCycle.update({
+        where: { id: cycle.id },
+        data: { status: 'CLOSED' },
+      });
+
+      // Expire all pending invites
+      await prisma.invitation.updateMany({
+        where: {
+          testCycleId: cycle.id,
+          status: 'PENDING',
+        },
+        data: {
+          status: 'CLOSED',
+          respondedAt: now,
+        },
+      });
+
+      updates.push(cycle.id);
+    }
+  }
+
+  return {
+    updatedCycles: updates.length,
+    expiredIds: updates,
+  };
+}
