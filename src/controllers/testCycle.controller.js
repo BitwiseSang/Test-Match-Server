@@ -96,3 +96,13 @@ export async function updateTestCycleStatus(req, res) {
     res.status(400).json({ error: err.message });
   }
 }
+
+export async function getAcceptedTesters(req, res) {
+  const { id } = req.params;
+  try {
+    const testers = await TestCycleService.getAcceptedTesters(id, req.user);
+    res.json(testers);
+  } catch (err) {
+    res.status(403).json({ error: err.message });
+  }
+}

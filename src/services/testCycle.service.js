@@ -320,3 +320,44 @@ export async function updateTestCycleStatus(cycleId, newStatus, user) {
 
   return { updated: true, status: newStatus };
 }
+
+export async function getAcceptedTesters(testCycleId, requester) {
+  // Verify test cycle exists
+  const testCycle = await prisma.testCycle.findUnique({
+    where: { id: testCycleId },
+  });
+
+  if (!testCycle) throw new Error('Test cycle not found');
+
+  // Only the owning client or admin can access
+  if (requester.role === 'CLIENT' && requester.id !== testCycle.clientId) {
+    throw new Error('Unauthorized');
+  }
+
+  const acceptedInvites = await prisma.invitation.findMany({
+    where: {
+      testCycleId,
+      status: 'ACCEPTED',
+    },
+    include: {
+      tester: {
+        select: {
+          id: true,
+          email: true,
+          name: true,
+          location: true,
+          devices: true,
+        },
+      },
+    },
+  });
+
+  return acceptedInvites.map((invite) => ({
+    testerId: invite.tester.id,
+    email: invite.tester.email,
+    name: invite.tester.name,
+    location: invite.tester.location,
+    devices: invite.tester.devices,
+    acceptedAt: invite.respondedAt,
+  }));
+}
