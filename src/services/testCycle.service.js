@@ -361,3 +361,17 @@ export async function getAcceptedTesters(testCycleId, requester) {
     acceptedAt: invite.respondedAt,
   }));
 }
+
+export async function fetchOpenTestCycles() {
+  return await prisma.testCycle.findMany({
+    where: {
+      status: 'OPEN',
+      endDate: {
+        gte: new Date(),
+      },
+    },
+    orderBy: {
+      createdAt: 'desc',
+    },
+  });
+}

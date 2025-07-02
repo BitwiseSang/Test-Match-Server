@@ -106,3 +106,13 @@ export async function getAcceptedTesters(req, res) {
     res.status(403).json({ error: err.message });
   }
 }
+
+export async function getOpenTestCycles(_req, res) {
+  try {
+    const testCycles = await TestCycleService.fetchOpenTestCycles();
+    res.json(testCycles);
+  } catch (err) {
+    console.error('Error fetching open test cycles:', err);
+    res.status(500).json({ error: 'Failed to fetch test cycles' });
+  }
+}
