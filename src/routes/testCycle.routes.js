@@ -4,6 +4,7 @@ import {
   updateTestCycle,
   getTestCycles,
   getClientCycleById,
+  updateTestCycleStatus,
 } from '../controllers/testCycle.controller.js';
 import authenticate from '../middleware/authMiddleware.js';
 import adminMiddleware from '../middleware/admin.middleware.js';
@@ -21,5 +22,6 @@ router.get(
   getInvitesForCycle
 );
 router.get('/cycle/:id', authenticate(), getClientCycleById);
+router.patch('/:id/status', authenticate(), updateTestCycleStatus);
 
 export default router;

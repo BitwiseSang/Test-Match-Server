@@ -278,3 +278,45 @@ export async function cleanupExpiredTestCycles() {
     expiredIds: updates,
   };
 }
+
+export async function updateTestCycleStatus(cycleId, newStatus, user) {
+  const allowedStatuses = ['COMPLETED', 'CANCELLED'];
+  if (!allowedStatuses.includes(newStatus)) {
+    throw new Error('Invalid status update');
+  }
+
+  const cycle = await prisma.testCycle.findUnique({
+    where: { id: cycleId },
+  });
+
+  if (!cycle) throw new Error('Test cycle not found');
+  if (cycle.status === 'COMPLETED' || cycle.status === 'CANCELLED') {
+    throw new Error(`Cannot update a ${cycle.status} cycle`);
+  }
+
+  if (user.role === 'CLIENT' && cycle.clientId !== user.id) {
+    throw new Error('Unauthorized: not your test cycle');
+  }
+
+  // Perform status update
+  await prisma.testCycle.update({
+    where: { id: cycleId },
+    data: { status: newStatus },
+  });
+
+  if (newStatus === 'CANCELLED') {
+    // Expire all pending invites
+    await prisma.invitation.updateMany({
+      where: {
+        testCycleId: cycleId,
+        status: 'PENDING',
+      },
+      data: {
+        status: 'EXPIRED',
+        respondedAt: new Date(),
+      },
+    });
+  }
+
+  return { updated: true, status: newStatus };
+}

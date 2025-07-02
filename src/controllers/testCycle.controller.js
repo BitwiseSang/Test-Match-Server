@@ -73,3 +73,26 @@ export async function getAllCyclesForAdmin(req, res) {
     res.status(400).json({ error: err.message });
   }
 }
+
+export async function updateTestCycleStatus(req, res) {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  if (!['ADMIN', 'CLIENT'].includes(req.user.role)) {
+    return res.status(403).json({ error: 'Access denied' });
+  }
+
+  try {
+    const result = await TestCycleService.updateTestCycleStatus(
+      id,
+      status,
+      req.user
+    );
+    res.json({
+      message: `Test cycle marked as ${status}`,
+      ...result,
+    });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+}
