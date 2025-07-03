@@ -12,7 +12,7 @@ export async function createTestCycle(clientId, data) {
       requiredOS: data.requiredOS.map((os) => os.toLowerCase()),
       requiredDevices: data.requiredDevices.map((d) => d.toLowerCase()),
       requiredLocation: data.requiredLocation.map((loc) => loc.toLowerCase()),
-      slots: data.slots,
+      slots: Number(data.slots),
       startDate: new Date(data.startDate),
       endDate: new Date(data.endDate),
     },
