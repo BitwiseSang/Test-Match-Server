@@ -375,3 +375,17 @@ export async function fetchOpenTestCycles() {
     },
   });
 }
+
+export async function getTestCycleById(id) {
+  const testCycle = await prisma.testCycle.findUnique({
+    where: { id },
+    include: {
+      client: {
+        select: { companyName: true, email: true },
+      },
+    },
+  });
+
+  if (!testCycle) throw new Error('Test cycle not found');
+  return testCycle;
+}

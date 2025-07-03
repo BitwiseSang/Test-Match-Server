@@ -116,3 +116,12 @@ export async function getOpenTestCycles(_req, res) {
     res.status(500).json({ error: 'Failed to fetch test cycles' });
   }
 }
+
+export async function getTestCycleById(req, res) {
+  try {
+    const testCycle = await TestCycleService.getTestCycleById(req.params.id);
+    res.json(testCycle);
+  } catch (err) {
+    res.status(404).json({ error: 'Test cycle not found' });
+  }
+}
