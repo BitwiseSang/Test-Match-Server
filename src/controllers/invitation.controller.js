@@ -44,3 +44,13 @@ export async function getInvitesForCycle(req, res) {
     res.status(400).json({ error: err.message });
   }
 }
+
+export async function getInvitesByTestCycle(req, res) {
+  try {
+    const { id } = req.params;
+    const invites = await InvitationService.getInvitationsByTestCycle(id);
+    res.json(invites);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}

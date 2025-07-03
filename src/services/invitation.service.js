@@ -102,3 +102,19 @@ export async function getInvitationsForCycleSummary(testCycleId) {
 
   return { summary, invitations: formatted };
 }
+
+export async function getInvitationsByTestCycle(testCycleId) {
+  return prisma.invitation.findMany({
+    where: { testCycleId },
+    include: {
+      tester: {
+        select: {
+          id: true,
+          email: true,
+          location: true,
+        },
+      },
+    },
+    orderBy: { sentAt: 'desc' },
+  });
+}
